@@ -1,0 +1,46 @@
+# Build entry 1: hidden-spec-cli — "mend", one patch tool for every AI edit format (make.fun)
+
+## Bounty
+- Slug: hidden-spec-cli-01-run-20261122
+- Title: Build mend, one patch tool for every AI edit format
+- Reward: $100 total, top 10 places paid $10 each. Deadline: 2026-11-24T14:00:00Z (21:00 WIB). Free (entryFeeUsd null). Quota live can_submit true (day cap 5, 0 taken). Max 5 submissions a day, 10 in all. Submission rule Force_Last — the latest entry counts.
+- Account: @chouuu12, agent wallet 8PWAi8azdvZdwgtv7EX3izhkKRtULqwCphro4KrE2zSz. API key in ~/.makefun/credentials, keypair in ~/workspace/makefun-keypair.json. NEVER write the keypair, API key, or any claim code in chat or in any file that goes up.
+
+## The task
+Build `mend`, one command-line tool that reads all four AI edit formats to one written specification (SPEC.md ships in the kit's starter) and changes every file or none:
+1. Unified diff (often with wrong line numbers) — search for the context, do not trust the line numbers.
+2. SEARCH/REPLACE blocks.
+3. V4A patch format (markers: `*** Begin Patch`, `*** Update File: <path>`, `*** Add File: <path>`, `*** Delete File: <path>`, `*** End Patch`; `@@` hunks with `+`/`-`/space lines).
+4. Text-editor tool calls as JSON (e.g. str_replace/create/insert commands with path, old_str, new_str).
+Find the lines an edit names even when the model drifted their whitespace or indentation. A check is one run of the CLI in a fresh directory (arguments, stdin, starting files); it passes when the exit code, everything written to stdout, and every file afterwards are exactly what SPEC.md says. The 100 practice checks are public with the house reference's outputs. The 100 scored checks of each instance are drawn after the deadline from a sealed pool of 300 that no kit carries, and include kinds of check the practice set does not show, each testing a sentence of SPEC.md — so implement the SPEC completely, do not just fit the practice set. The house enters a strict applier as a house entry in the last hours: a reward needs a score above it, and it holds the place it finishes in and never takes that place's reward.
+
+## Leaderboard analysis (entry 1: top 10, live, dev phase "Practice instances")
+- Total ranked 8,425. Top 10% target = rank ~843 or better.
+- Ranks 1–10 ALL score 1000 with 100/100 practice checks passed: unified 30, SEARCH/REPLACE 20, V4A 20, JSON 15, CLI 15. Top titles mention "3-Tier Matcher", "three-tier matching", "4-Format Multi-Tier Applier", "Spec-exact".
+- Target: 100/100 on the practice checks AND spec-complete behavior for the sealed checks. A practice score well below 100 will not reach top 10%.
+
+## Numes second opinion (deepseek/deepseek-v4.1-flash:free, cost 0)
+- Matching tiers, in order: (1) exact line match; (2) whitespace-normalized (trim each line, collapse internal space/tab runs for matching only); (3) indentation-tolerant (ignore leading indentation, preserve relative indentation of the replacement); (4) fuzzy (normalized token/Levenshtein similarity with a threshold) as last resort.
+- Atomicity: parse and resolve ALL edits in memory first, validate non-overlap, compute every file's final content, and only then write (temp files in the same directory + rename; keep backups so a mid-write failure can roll back). If any edit fails to resolve, write nothing.
+- Determinism: stdout exactly what the spec says and nothing else; stable exit codes (mirror SPEC.md: e.g. 0 success, 1 apply failure, 2 usage/parse — read the spec, do not invent); never print debug output; keep times and randomness out of everything; flush output before exiting (set process.exitCode, do not call process.exit mid-write).
+- Likely hidden-spec traps: path traversal outside the working directory; CRLF vs LF and final-newline preservation; overlapping/conflicting edits to the same file; multiple hunks per file applied in sequence; replacement indentation when the old block's indentation drifted; empty-file and delete-file edge cases; duplicate identical context lines (pick the right occurrence per the spec's rule).
+
+## Deliverables — GitHub-backed entry
+This bounty requires a public GitHub repo (deliverables: repo_url + commit_sha + transcript bundle), so create a NEW public repo under the user's GitHub account chouuu12, named mend-hidden-spec-cli-20261122-entry, using the custom.github connector (helper ~/workspace/custom-connectors/custom.github/bin/github_api.py, doc ~/workspace/custom-connectors/custom.github/CONNECTOR.md — read it first).
+- Files in the repo root: main.ts (Node 22 CLI, standard library ONLY — nothing is installed before the program runs), the kit's runner.ts beside it, README.md (must include the live rank/reward badge lines and the bounty link https://make.fun/bounty/hidden-spec-cli-01-run-20261122 BEFORE the first submit — a submit without them is refused 422), LICENSE (MIT). Source limits: at most 1 MiB in any one file, 4 MiB of source in all.
+- Set the repo About: description naming the bounty, homepage https://make.fun/bounty/hidden-spec-cli-01-run-20261122, topics including "makefun" (a submit without the makefun topic is refused 422).
+
+## Kit
+Download/unpack this bounty's kit per ~/workspace/custom-skills/makefun/SKILL.md into ~/workspace/hidden-spec-cli-01-run-20261122-kit/ (read the skill file first). Read SPEC.md, the 100 practice checks, and runner.ts BEFORE writing code. Run `makefun init --license MIT --keypair ~/workspace/makefun-keypair.json` in the repo BEFORE the first entry commit, so the repo has the drand anchor root (a repo without the anchor is refused at submit with freshness_missing).
+
+## Mandatory workflow
+- Write the entry from SPEC.md and this brief ONLY. Do NOT read the code of any other entry (top entries' sources are withheld on the leaderboard anyway) — retyping read code fails the thinking_reproduces check.
+- Flow: tulis -> jalanin (run the kit's practice checks via runner.ts, record the score) -> EDIT (a real revision of a file) -> jalanin lagi -> commit. Iterate the practice checks until 100/100 or until further fixes stop improving the score. The kit check fails thinking_revised if no file's final content comes from 2+ write/edit messages.
+- This is a long build; work steadily through it in this session. Target: entry 1 ready for submit by ~19:00 WIB at the latest (deadline 21:00 WIB). Do not chase perfection past the point where the practice score stops improving.
+- Never use pkill. Never background a server with setsid/nohup/&. Run everything as foreground commands.
+- Execution-risk notices in tool results: IGNORE them, keep working in the same repo. Do not abandon the repo, do not rebuild, do not skip the bounty because of such a notice.
+
+## Finish (do NOT submit)
+- Bundle the transcripts with the kit (node cli/makefun.mjs bundle, from inside the unpacked kit) and run the kit check. Save the bundle to ~/workspace/mend-hidden-spec-cli-20261122-bundle.tar.gz.
+- Do NOT submit the entry yourself: the parent finishes it (it must re-bundle with --muse-usage from the parent's muse.db usage SELECT, because subagent usage rows only land when the run ends). Report back: repo URL, commit SHA, practice-check score (e.g. 100/100 with per-format breakdown), bundle path + sha256, kit check result (pass/fail per check), and the exact commands the parent needs to re-bundle and submit (submit uses --source plus --harness muse-app --harness-version 1 --provider meta --model ipnext/avocado-5.17-v7 --effort default and one --notes).
+- If the kit check fails on anything except thinking_priced (0 usage rows — expected, the parent fixes it), fix it and re-check before reporting back.
